@@ -4,14 +4,12 @@ from pprint import pformat
 from protocol import hello_request, hello_response, proto_response_pubkey
 from urlparse import urlparse
 from zmq.eventloop import ioloop
-from zmq.eventloop.ioloop import PeriodicCallback
 import gnupg
 import hashlib
 import xmlrpclib
 import json
 import logging
 import pyelliptic as ec
-import requests
 import socket
 import traceback
 from threading import Thread
@@ -168,8 +166,6 @@ class CryptoTransportLayer(TransportLayer):
 
         self._log = logging.getLogger('[%s] %s' % (market_id,
                                                    self.__class__.__name__))
-        requests_log = logging.getLogger("requests")
-        requests_log.setLevel(logging.WARNING)
 
         # Connect to database
         self._db = db
