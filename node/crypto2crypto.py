@@ -201,38 +201,11 @@ class CryptoTransportLayer(TransportLayer):
         self.setup_callbacks()
         self.listen(self.pubkey)
 
-        if seed_mode == 0 and not dev_mode:
-            self.start_ip_address_checker()
-
     def setup_callbacks(self):
         self.add_callbacks([('hello', self._ping),
                             ('findNode', self._find_node),
                             ('findNodeResponse', self._find_node_response),
                             ('store', self._store_value)])
-
-    def start_ip_address_checker(self):
-        '''Checks for possible public IP change'''
-        self.caller = PeriodicCallback(self._ip_updater_periodic_callback, 5000, ioloop.IOLoop.instance())
-        self.caller.start()
-
-    def _ip_updater_periodic_callback(self):
-        try:
-            r = requests.get('https://icanhazip.com')
-
-            if r and hasattr(r, 'text'):
-                ip = r.text
-                ip = ip.strip(' \t\n\r')
-                if ip != self._ip:
-                    self._ip = ip
-                    self._uri = 'tcp://%s:%s' % (self._ip, self._port)
-                    self.stream.close()
-                    self.listen(self.pubkey)
-
-                    self._dht._iterativeFind(self._guid, [], 'findNode')
-            else:
-                self._log.error('Could not get IP')
-        except Exception as e:
-            self._log.error('[Requests] error: %s' % e)
 
     def save_peer_to_db(self, peer_tuple):
         pubkey = peer_tuple[0]
